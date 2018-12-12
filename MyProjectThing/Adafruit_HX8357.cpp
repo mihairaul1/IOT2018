@@ -450,7 +450,7 @@ void Adafruit_HX8357::begin(uint8_t type) {
     spiWrite(0x55);  // 16 bit
     
     writeCommand(HX8357_MADCTL);  
-    spiWrite(0x88);   // changed for unPhone screen
+    spiWrite(0x88);  // changed for unPhone screen
     
     writeCommand(HX8357_TEON);  // TE off
     spiWrite(0x00); 
@@ -788,50 +788,3 @@ uint8_t Adafruit_HX8357::readcommand8(uint8_t c, uint8_t index) {
    digitalWrite(_cs, HIGH);
    return r;
 }
-
-
- 
-/*
-
- uint16_t Adafruit_HX8357::readcommand16(uint8_t c) {
- digitalWrite(_dc, LOW);
- if (_cs)
- digitalWrite(_cs, LOW);
- 
- spiwrite(c);
- pinMode(_sid, INPUT); // input!
- uint16_t r = spiread();
- r <<= 8;
- r |= spiread();
- if (_cs)
- digitalWrite(_cs, HIGH);
- 
- pinMode(_sid, OUTPUT); // back to output
- return r;
- }
- 
- uint32_t Adafruit_HX8357::readcommand32(uint8_t c) {
- digitalWrite(_dc, LOW);
- if (_cs)
- digitalWrite(_cs, LOW);
- spiwrite(c);
- pinMode(_sid, INPUT); // input!
- 
- dummyclock();
- dummyclock();
- 
- uint32_t r = spiread();
- r <<= 8;
- r |= spiread();
- r <<= 8;
- r |= spiread();
- r <<= 8;
- r |= spiread();
- if (_cs)
- digitalWrite(_cs, HIGH);
- 
- pinMode(_sid, OUTPUT); // back to output
- return r;
- }
- 
- */
