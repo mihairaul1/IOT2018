@@ -77,6 +77,7 @@ void loop() {
   Serial.print(p.y);  Serial.print("\tPressure = "); Serial.println(p.z);
 
   checkPowerSwitch(); // check if the power switch is now off & if so shutdown
+//  tft.fillScreen(BLACK);
   tft.setTextWrap(false);
   tft.setCursor(30,30);
   tft.println("Dawn Simulator");
@@ -186,11 +187,29 @@ void loop() {
   else tft.print(am);
 
   
-  if (hh==ch && mm==cm){
+  if (ch==hh&&cm==mm){
     tft.fillScreen(BLACK);
     Serial.println("Alarm!!!");
     tft.setCursor(20, 30);
     tft.println("Alarming!");
+
+    // Making the Snooze button
+
+    tft.drawRect(105, 400, 120, 50, WHITE);
+    tft.setCursor(130, 410);
+    tft.print("Stop");
+
+    tft.drawRect(105, 200, 120, 50, WHITE);
+    tft.setCursor(112, 210);
+    tft.print("Snooze");
+  
+//  
+//  
+//  tft.drawRect(ax-10,ay+120,100,50,WHITE);
+//
+//  tft.setCursor(ax+15,ay+135);
+//  tft.print("Set");
+    
     dawnSimulate();
   }
 
@@ -206,11 +225,14 @@ void dawnSimulate(){
     }
     strip.show();
     delay(40);
+    coordinates();
   }
   for(uint16_t i=0; i<255; i++) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(i, 255, 0));
     }
+    coordinates();
+     
     strip.show();
     delay(40);
   }
@@ -220,24 +242,53 @@ void dawnSimulate(){
     }
     strip.show();
     delay(40);
+    coordinates();
   }
   for(uint16_t i=0; i<255; i++) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(255, 255, 255, i));
     }
+    coordinates();
+    
     strip.show();
     delay(40);
+   coordinates();
   }
 
   for(uint16_t i=255; i>0; i--) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(0, 0, 0, i));
-    }
+    }  
     strip.show();
     delay(75.3);
+    coordinates();
   }
 
   mm++;
 
   tft.fillScreen(BLACK);
+}
+
+void coordinates(){
+  TS_Point p = ts.getPoint();
+
+  p.x = map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
+  p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
+  Serial.println(ts.touched());
+  Serial.print("X = "); Serial.print(p.x); Serial.print("\tY = ");
+  Serial.print(p.y);  Serial.print("\tPressure = "); Serial.println(p.z);
+
+  if (p.x >= 100 && p.x <= 230 && p.y >= 230 && p.y <= 280 && ts.touched()){
+    Serial.print("AAA");
+    for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
+      strip.setPixelColor(ledPosition, strip.Color(0, 0, 0, 0));
+    }
+    cm +=5;
+    loop();
+  }
+
+  if (p.x >= 100 && p.x <= 230 && p.y >= 10 && p.y <= 90 && ts.touched()){
+    cm--;
+    loop();
+  }
 }
