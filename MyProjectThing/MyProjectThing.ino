@@ -8,7 +8,7 @@
 
 #define PIN A0
 #define NUM_LEDS 8
-#define BRIGHTNESS 10
+#define BRIGHTNESS 50
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_RGBW + NEO_KHZ800);
 
 // colour definitions
@@ -33,11 +33,12 @@ static uint8_t conv2d(const char* p) {
 uint32_t targetTime = 0;
 uint8_t hh=conv2d(__TIME__), mm=conv2d(__TIME__+3), ss=conv2d(__TIME__+6);  // Get H, M, S from compile time
 uint32_t ah = 0; uint32_t am = 0; // Alarm
-int ax = 115; int ay = 300;
+uint32_t ch = 0; uint32_t cm = 0; // Alarm
+int ax = 115; int ay = 280;
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115230);
   Wire.setClock(100000);
   Wire.begin();
   IOExpander::begin();
@@ -52,7 +53,6 @@ void setup() {
   tft.begin(HX8357D);
   IOExpander::digitalWrite(IOExpander::BACKLIGHT,HIGH);
   tft.fillScreen(BLACK);
-  tft.setTextSize(1);
   
   tft.setTextColor(WHITE, BLACK);  // Adding a background colour erases previous text automatically
   tft.setTextSize(3);
@@ -72,7 +72,7 @@ void loop() {
 
   p.x = map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
-  // Serial.println(ts.touched());
+  Serial.println(ts.touched());
   Serial.print("X = "); Serial.print(p.x); Serial.print("\tY = ");
   Serial.print(p.y);  Serial.print("\tPressure = "); Serial.println(p.z);
 
@@ -123,23 +123,49 @@ void loop() {
   tft.fillTriangle(ax+100, ay-60, ax+85, ay-40, ax+115, ay-40, WHITE);
   tft.fillTriangle(ax+100, ay+80, ax+85, ay+60, ax+115, ay+60, WHITE);
 
-  if (p.x >= 220 && p.x <= 250 && ts.touched()){
-    if (p.y >= 210 && p.y <= 245) {
+  // Confirm button
+  tft.drawRect(ax-10,ay+120,100,50,WHITE);
+
+  tft.setCursor(ax+15,ay+135);
+  tft.print("Set");
+
+  if (p.x >= 180 && p.x <= 270 && ts.touched()){
+    if (p.y >= 230 && p.y <= 280) {
         ah++;
       }
-    if (p.y >= 100 && p.y <= 120) {
+    if (p.y >= 140 && p.y <= 160) {
         ah--;
       }
   }
 
-  if (p.x >= 90 && p.x <= 130 && ts.touched()){
-    if (p.y >= 210 && p.y <= 245) {
+  if (p.x >= 70 && p.x <= 150 && ts.touched()){
+    if (p.y >= 230 && p.y <= 280) {
         am++;
       }
-    if (p.y >= 100 && p.y <= 120) {
+    if (p.y >= 140 && p.y <= 160) {
         am--;
       }
   }
+
+    if (p.x >= 120 && p.x <= 230 && p.y >= 20 && p.y <= 70 && ts.touched()){
+      cm = am;
+      ch = ah;
+    }
+
+  // Print next alarm
+  tft.setCursor(ax-60,ay-110);
+  tft.print("Next: ");
+  if (ch<10){
+    tft.print("0");
+    tft.print(ch);
+  }
+  else tft.print(ch);
+  tft.print(":");
+  if (cm<10){
+    tft.print("0");
+    tft.print(cm);
+  }
+  else tft.print(cm);
 
   if(am>59) am=0;
   if (ah>23) ah=0;
@@ -159,10 +185,8 @@ void loop() {
   }
   else tft.print(am);
 
-  Serial.println(hh==ah && am==mm && ss==0);
-
   
-  if (hh==ah && am==mm){
+  if (hh==ch && mm==cm){
     tft.fillScreen(BLACK);
     Serial.println("Alarm!!!");
     tft.setCursor(20, 30);
@@ -171,7 +195,7 @@ void loop() {
   }
 
 
-  delay(100);
+  // delay(100);
 }
 
 
