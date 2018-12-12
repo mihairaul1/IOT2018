@@ -8,7 +8,7 @@
 
 #define PIN A0
 #define NUM_LEDS 8
-#define BRIGHTNESS 50
+#define BRIGHTNESS 10
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_RGBW + NEO_KHZ800);
 
 // colour definitions
@@ -22,6 +22,8 @@ const int YELLOW =    HX8357_YELLOW;
 const int WHITE =     HX8357_WHITE;
 
 TS_Point lastPoint;
+bool escape = false;
+bool stop = false;
 
 static uint8_t conv2d(const char* p) {
   uint8_t v = 0;
@@ -38,7 +40,7 @@ int ax = 115; int ay = 280;
 
 
 void setup() {
-  Serial.begin(115230);
+  Serial.begin(115200);
   Wire.setClock(100000);
   Wire.begin();
   IOExpander::begin();
@@ -66,6 +68,11 @@ void setup() {
 
 void loop() {
   bool usbPowerOn = checkPowerSwitch(); // shutdown if switch off
+  mainScreen();
+
+}
+
+void mainScreen(){
 
   // retrieve a point  
   TS_Point p = ts.getPoint();
@@ -76,8 +83,6 @@ void loop() {
   Serial.print("X = "); Serial.print(p.x); Serial.print("\tY = ");
   Serial.print(p.y);  Serial.print("\tPressure = "); Serial.println(p.z);
 
-  checkPowerSwitch(); // check if the power switch is now off & if so shutdown
-//  tft.fillScreen(BLACK);
   tft.setTextWrap(false);
   tft.setCursor(30,30);
   tft.println("Dawn Simulator");
@@ -134,7 +139,7 @@ void loop() {
     if (p.y >= 230 && p.y <= 280) {
         ah++;
       }
-    if (p.y >= 140 && p.y <= 160) {
+    if (p.y >= 110 && p.y <= 160) {
         ah--;
       }
   }
@@ -143,7 +148,7 @@ void loop() {
     if (p.y >= 230 && p.y <= 280) {
         am++;
       }
-    if (p.y >= 140 && p.y <= 160) {
+    if (p.y >= 110 && p.y <= 160) {
         am--;
       }
   }
@@ -151,6 +156,7 @@ void loop() {
     if (p.x >= 120 && p.x <= 230 && p.y >= 20 && p.y <= 70 && ts.touched()){
       cm = am;
       ch = ah;
+      stop = false;
     }
 
   // Print next alarm
@@ -186,8 +192,10 @@ void loop() {
   }
   else tft.print(am);
 
+  escape = false; // init the escape bool
   
-  if (ch==hh&&cm==mm){
+  // if (ch==hh&&cm==mm&&stop){
+  if (ch==hh&&cm==mm&&!stop){
     tft.fillScreen(BLACK);
     Serial.println("Alarm!!!");
     tft.setCursor(20, 30);
@@ -202,23 +210,16 @@ void loop() {
     tft.drawRect(105, 200, 120, 50, WHITE);
     tft.setCursor(112, 210);
     tft.print("Snooze");
-  
-//  
-//  
-//  tft.drawRect(ax-10,ay+120,100,50,WHITE);
-//
-//  tft.setCursor(ax+15,ay+135);
-//  tft.print("Set");
     
     dawnSimulate();
+
   }
-
-
-  // delay(100);
 }
 
 
+
 void dawnSimulate(){
+
   for(uint16_t i=0; i<255; i++) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(0, i, 0));
@@ -226,15 +227,16 @@ void dawnSimulate(){
     strip.show();
     delay(40);
     coordinates();
+    if (escape) return;
   }
   for(uint16_t i=0; i<255; i++) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(i, 255, 0));
-    }
-    coordinates();
-     
+    }  
     strip.show();
     delay(40);
+    coordinates();
+    if (escape) return;
   }
   for(uint16_t i=0; i<255; i++) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
@@ -243,16 +245,16 @@ void dawnSimulate(){
     strip.show();
     delay(40);
     coordinates();
+    if (escape) return;
   }
   for(uint16_t i=0; i<255; i++) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(255, 255, 255, i));
     }
-    coordinates();
-    
     strip.show();
     delay(40);
-   coordinates();
+    coordinates();
+    if (escape) return;
   }
 
   for(uint16_t i=255; i>0; i--) {
@@ -262,6 +264,7 @@ void dawnSimulate(){
     strip.show();
     delay(75.3);
     coordinates();
+    if (escape) return;
   }
 
   mm++;
@@ -275,20 +278,26 @@ void coordinates(){
   p.x = map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
   Serial.println(ts.touched());
-  Serial.print("X = "); Serial.print(p.x); Serial.print("\tY = ");
+  Serial.print("INNNNNN X = "); Serial.print(p.x); Serial.print("\tY = ");
   Serial.print(p.y);  Serial.print("\tPressure = "); Serial.println(p.z);
 
   if (p.x >= 100 && p.x <= 230 && p.y >= 230 && p.y <= 280 && ts.touched()){
-    Serial.print("AAA");
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(0, 0, 0, 0));
     }
     cm +=5;
-    loop();
+    tft.fillScreen(BLACK);
+    escape = true;
+    return;
   }
 
   if (p.x >= 100 && p.x <= 230 && p.y >= 10 && p.y <= 90 && ts.touched()){
-    cm--;
-    loop();
+    for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
+      strip.setPixelColor(ledPosition, strip.Color(0, 0, 0, 0));
+    }
+    stop = true;
+    tft.fillScreen(BLACK);
+    escape = true;
+    return;
   }
 }
