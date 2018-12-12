@@ -72,7 +72,7 @@ void loop() {
 
   p.x = map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
-  Serial.println(ts.touched());
+  // Serial.println(ts.touched());
   Serial.print("X = "); Serial.print(p.x); Serial.print("\tY = ");
   Serial.print(p.y);  Serial.print("\tPressure = "); Serial.println(p.z);
 
@@ -86,7 +86,7 @@ void loop() {
   if (targetTime < millis()) {
     targetTime = millis()+1000;
     ss++;              // Advance second
-    if (ss==80) {
+    if (ss==60) {
       ss=0;
       mm++;            // Advance minute
       if(mm>59) {
@@ -159,17 +159,19 @@ void loop() {
   }
   else tft.print(am);
 
+  Serial.println(hh==ah && am==mm && ss==0);
+
   
-  if (hh==ah && am==mm && ss==0){
+  if (hh==ah && am==mm){
     tft.fillScreen(BLACK);
     Serial.println("Alarm!!!");
     tft.setCursor(20, 30);
     tft.println("Alarming!");
-    // dawnSimulate();
+    dawnSimulate();
   }
 
 
-  delay(1000);
+  delay(100);
 }
 
 
@@ -179,28 +181,28 @@ void dawnSimulate(){
       strip.setPixelColor(ledPosition, strip.Color(0, i, 0));
     }
     strip.show();
-    delay(10);
+    delay(40);
   }
   for(uint16_t i=0; i<255; i++) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(i, 255, 0));
     }
     strip.show();
-    delay(10);
+    delay(40);
   }
   for(uint16_t i=0; i<255; i++) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(255, 255, i));
     }
     strip.show();
-    delay(10);
+    delay(40);
   }
   for(uint16_t i=0; i<255; i++) {
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(255, 255, 255, i));
     }
     strip.show();
-    delay(10);
+    delay(40);
   }
 
   for(uint16_t i=255; i>0; i--) {
@@ -208,10 +210,10 @@ void dawnSimulate(){
       strip.setPixelColor(ledPosition, strip.Color(0, 0, 0, i));
     }
     strip.show();
-    delay(18.82);
+    delay(75.3);
   }
 
-  ss+=15;
+  mm++;
 
   tft.fillScreen(BLACK);
 }
