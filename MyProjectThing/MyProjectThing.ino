@@ -285,6 +285,7 @@ void coordinates(){
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(0, 0, 0, 0));
     }
+    strip.show();
     cm +=5;
     tft.fillScreen(BLACK);
     escape = true;
@@ -295,6 +296,7 @@ void coordinates(){
     for(uint16_t ledPosition=0; ledPosition < NUM_LEDS; ledPosition++){
       strip.setPixelColor(ledPosition, strip.Color(0, 0, 0, 0));
     }
+    strip.show();
     stop = true;
     tft.fillScreen(BLACK);
     escape = true;
