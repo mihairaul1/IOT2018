@@ -75,12 +75,19 @@ void loop() {
 void mainScreen(){
 
   // retrieve a point  
-  TS_Point p = ts.getPoint();
+  TS_Point p;
+  
+  if (ts.bufferSize()) {
+    p = ts.getPoint(); 
+  } else {
+    // this is our way of tracking touch 'release'!
+    p.x = p.y = p.z = -1;
+  }
 
   p.x = map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
   Serial.println(ts.touched());
-  Serial.print("X = "); Serial.print(p.x); Serial.print("\tY = ");
+  Serial.print("Clock X = "); Serial.print(p.x); Serial.print("\tY = ");
   Serial.print(p.y);  Serial.print("\tPressure = "); Serial.println(p.z);
 
   tft.setTextWrap(false);
@@ -273,12 +280,19 @@ void dawnSimulate(){
 }
 
 void coordinates(){
-  TS_Point p = ts.getPoint();
+  TS_Point p;
+
+  if (ts.bufferSize()) {
+    p = ts.getPoint(); 
+  } else {
+    // this is our way of tracking touch 'release'!
+    p.x = p.y = p.z = -1;
+  }
 
   p.x = map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
   Serial.println(ts.touched());
-  Serial.print("INNNNNN X = "); Serial.print(p.x); Serial.print("\tY = ");
+  Serial.print("Alarm X = "); Serial.print(p.x); Serial.print("\tY = ");
   Serial.print(p.y);  Serial.print("\tPressure = "); Serial.println(p.z);
 
   if (p.x >= 100 && p.x <= 230 && p.y >= 230 && p.y <= 280 && ts.touched()){
