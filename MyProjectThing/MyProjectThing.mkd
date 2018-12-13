@@ -4,29 +4,32 @@ Below I will present the design of the implemented alarm clock using the provide
 
 1) Home screen.
 
-
+![Home](4.jpg)
 
 On the home screen, the title and the name is written at the top of the window.
 In order to set a new alarm, the arrows can be pressed in order to increase/decrease the numbers which represent the hours and respectively, the minutes.
 After selecting the corresponding time, the set button will set the next alarm.
 
-
 2) Setting the next alarm:
 Set the desired time and press set in order to set an alarm.
-3) “Alarming”:
+
+![Next1](3.jpg)
+
+After the button 'Set' is pressed, it can be seen that the next alarm is displayed on the screen.
+
+![Next2](2.jpg)
+
+3) 'Alarming':
 
 When the time for the next alarm is reached and the alarm starts, the following screen will appear:
 
+![Alarming](5.jpg)
 
-
-   The user is now able to stop the alarm (which will take him/her back to the home screen, the same alarm remaining for the next day) or Snooze the alarm which will postpone the alarm for another 5 minutes and the screen will look like this:
+The user is now able to stop the alarm (which will take him/her back to the home screen, the same alarm remaining for the next day) or Snooze the alarm which will postpone the alarm for another 5 minutes and the screen will look like this:
    
+ ![Home](1.jpg)
    
-   
+4) LEDâ€™s:
 
-
-
-4) LED’s:
-
-In order for the light to become brighter without irritating the sleeping individual, the LED’s will start by becoming: red -> orange -> yellow -> white.
-The LDS’s also become more and more brighter with each second, this creating a sunrise effect.
+In order for the light to become brighter without irritating the sleeping individual, the LEDâ€™s will start by becoming: red -> orange -> yellow -> white.
+The LDSâ€™s also become more and more brighter with each second, this creating a sunrise effect.
