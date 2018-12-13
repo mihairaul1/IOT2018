@@ -1,5 +1,32 @@
-My Project Documentation
-===
+Dawn simulator alarm clock
 
-Write documentation of your project design, and subsequently document your
-implementation.
+Below I will present the design of the implemented alarm clock using the provided materials.
+
+1) Home screen.
+
+
+
+On the home screen, the title and the name is written at the top of the window.
+In order to set a new alarm, the arrows can be pressed in order to increase/decrease the numbers which represent the hours and respectively, the minutes.
+After selecting the corresponding time, the set button will set the next alarm.
+
+
+2) Setting the next alarm:
+Set the desired time and press set in order to set an alarm.
+3) “Alarming”:
+
+When the time for the next alarm is reached and the alarm starts, the following screen will appear:
+
+
+
+   The user is now able to stop the alarm (which will take him/her back to the home screen, the same alarm remaining for the next day) or Snooze the alarm which will postpone the alarm for another 5 minutes and the screen will look like this:
+   
+   
+   
+
+
+
+4) LED’s:
+
+In order for the light to become brighter without irritating the sleeping individual, the LED’s will start by becoming: red -> orange -> yellow -> white.
+The LDS’s also become more and more brighter with each second, this creating a sunrise effect.
