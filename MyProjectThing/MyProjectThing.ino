@@ -1,4 +1,5 @@
 // MyProjectThing.ino
+// Dawn simulation alarm
 // COM3505 2018 project template sketch. Do your project code here.
 // Out of the box the sketch is configured to kick the tyres on all the
 // modules, and allow stepping through tests via the touch screen. Change the 
@@ -22,8 +23,8 @@ const int YELLOW =    HX8357_YELLOW;
 const int WHITE =     HX8357_WHITE;
 
 TS_Point lastPoint;
-bool escape = false;
-bool stop = false;
+bool escape = false; // check stop alarm and go back to main screen
+bool stop = false; // stop prevent go back to alarm
 
 static uint8_t conv2d(const char* p) {
   uint8_t v = 0;
@@ -34,8 +35,8 @@ static uint8_t conv2d(const char* p) {
 
 uint32_t targetTime = 0;
 uint8_t hh=conv2d(__TIME__), mm=conv2d(__TIME__+3), ss=conv2d(__TIME__+6);  // Get H, M, S from compile time
-uint32_t ah = 0; uint32_t am = 0; // Alarm
-uint32_t ch = 0; uint32_t cm = 0; // Alarm
+uint32_t ah = 0; uint32_t am = 0; // Alarm time
+uint32_t ch = 0; uint32_t cm = 0; // Confirm alarm time
 int ax = 115; int ay = 280;
 
 
@@ -47,6 +48,7 @@ void setup() {
   checkPowerSwitch(); // check if the power switch is now off & if so shutdown
   delay(100);
 
+  // touch screen test
   if(! ts.begin())
     Serial.println("failed to start touchscreen controller");
   else
@@ -76,7 +78,8 @@ void mainScreen(){
 
   // retrieve a point  
   TS_Point p;
-  
+
+  // init the touch screen point
   if (ts.bufferSize()) {
     p = ts.getPoint(); 
   } else {
@@ -84,18 +87,22 @@ void mainScreen(){
     p.x = p.y = p.z = -1;
   }
 
+  // set p.x and p.y to fix the screen size
   p.x = map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
   Serial.println(ts.touched());
   Serial.print("Clock X = "); Serial.print(p.x); Serial.print("\tY = ");
   Serial.print(p.y);  Serial.print("\tPressure = "); Serial.println(p.z);
 
+  // Print title
   tft.setTextWrap(false);
   tft.setCursor(30,30);
   tft.println("Dawn Simulator");
   tft.setCursor(80,80);
   tft.println("Alarm Clock");
   tft.setCursor(85, 120);
+
+  // count times
   if (targetTime < millis()) {
     targetTime = millis()+1000;
     ss++;              // Advance second
@@ -109,7 +116,8 @@ void mainScreen(){
       }
     }
   }
-  
+
+  // print current time
   if (hh<10){
     tft.print("0");
     tft.print(hh);
@@ -132,16 +140,17 @@ void mainScreen(){
   tft.fillTriangle(ax-15, ay-60, ax-30, ay-40, ax, ay-40, WHITE);
   tft.fillTriangle(ax-15, ay+80, ax-30, ay+60, ax, ay+60, WHITE);
 
-  // Alarm Hour trangle
+  // Alarm Minute trangle
   tft.fillTriangle(ax+100, ay-60, ax+85, ay-40, ax+115, ay-40, WHITE);
   tft.fillTriangle(ax+100, ay+80, ax+85, ay+60, ax+115, ay+60, WHITE);
 
-  // Confirm button
+  // Confirm set alarm button
   tft.drawRect(ax-10,ay+120,100,50,WHITE);
 
   tft.setCursor(ax+15,ay+135);
   tft.print("Set");
 
+  // detect increase and decrease hour and minute
   if (p.x >= 180 && p.x <= 270 && ts.touched()){
     if (p.y >= 230 && p.y <= 280) {
         ah++;
@@ -160,13 +169,15 @@ void mainScreen(){
       }
   }
 
-    if (p.x >= 120 && p.x <= 230 && p.y >= 20 && p.y <= 70 && ts.touched()){
-      cm = am;
-      ch = ah;
-      stop = false;
-    }
+  // detect set alarm button touched
 
-  // Print next alarm
+  if (p.x >= 120 && p.x <= 230 && p.y >= 20 && p.y <= 70 && ts.touched()){
+    cm = am;
+    ch = ah;
+    stop = false;
+  }
+
+  // Print next alarm title
   tft.setCursor(ax-60,ay-110);
   tft.print("Next: ");
   if (ch<10){
@@ -185,7 +196,7 @@ void mainScreen(){
   if (ah>23) ah=0;
   if (ah<0) ah=0;
 
-  // Display alarm status
+  // Display next alarm
   tft.setCursor(ax,ay);
   if (ah<10){
     tft.print("0");
@@ -200,20 +211,20 @@ void mainScreen(){
   else tft.print(am);
 
   escape = false; // init the escape bool
-  
-  // if (ch==hh&&cm==mm&&stop){
+
+  // Check alarm trigger
   if (ch==hh&&cm==mm&&!stop){
     tft.fillScreen(BLACK);
     Serial.println("Alarm!!!");
     tft.setCursor(20, 30);
     tft.println("Alarming!");
 
-    // Making the Snooze button
-
+    // Print the Stop button
     tft.drawRect(105, 400, 120, 50, WHITE);
     tft.setCursor(130, 410);
     tft.print("Stop");
 
+    // Print the Snooze button
     tft.drawRect(105, 200, 120, 50, WHITE);
     tft.setCursor(112, 210);
     tft.print("Snooze");
@@ -224,7 +235,7 @@ void mainScreen(){
 }
 
 
-
+// Control LEDs simulate dawn
 void dawnSimulate(){
 
   for(uint16_t i=0; i<255; i++) {
@@ -279,6 +290,7 @@ void dawnSimulate(){
   tft.fillScreen(BLACK);
 }
 
+// Alarming screen
 void coordinates(){
   TS_Point p;
 
